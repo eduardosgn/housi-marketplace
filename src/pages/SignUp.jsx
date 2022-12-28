@@ -14,6 +14,8 @@ import { FormContainer, FormInput, FormPasswordContainer, FormPasswordInput, For
 
 import { toast } from 'react-toastify';
 
+import OAuth from "../components/OAuth";
+
 const SignUp = () => {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -171,7 +173,7 @@ const SignUp = () => {
 
                 </form>
 
-                {/* Google OAuth */}
+                <OAuth />
 
                 <Link to='/login' className='registerLink'>
                     Entrar com a sua conta

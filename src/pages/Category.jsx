@@ -31,10 +31,11 @@ function Category() {
 
                 let listings = [];
                 querySnap.forEach((doc) => {
-                    console.log('hi');
                     console.log(doc.data());
                 });
-            } catch (error) {};
+            } catch (error) {
+                console.log('Error');
+            };
         };
 
         fetchListings();

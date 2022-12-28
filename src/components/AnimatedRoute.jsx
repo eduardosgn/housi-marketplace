@@ -1,6 +1,7 @@
 import Explore from '../pages/Explore';
 import ForgotPassword from '../pages/ForgotPassword';
 import Offers from '../pages/Offers';
+import PrivateRoute from './PrivateRoute';
 import Profile from '../pages/Profile';
 import SignIn from '../pages/SignIn';
 import SignUp from '../pages/SignUp';
@@ -17,7 +18,9 @@ const AnimatedRoute = () => {
                 <Route path='/' element={ <Explore /> } />
                 <Route path='/esqueceu-senha' element={ <ForgotPassword /> } />
                 <Route path='/ofertas' element={ <Offers /> } />
-                <Route path='/perfil' element={ <Profile /> } />
+                <Route path='/perfil' element={ <PrivateRoute /> }>
+                    <Route path='/perfil' element={ <Profile /> } />
+                </Route>
                 <Route path='/login' element={ <SignIn /> } />
                 <Route path='/registrar' element={ <SignUp /> } />
             </Routes>

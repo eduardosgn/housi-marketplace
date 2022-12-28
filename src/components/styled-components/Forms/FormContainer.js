@@ -47,3 +47,11 @@ export const FormRevealPasswordIcon = styled.svg`
     margin: 0 .5rem;
     cursor: pointer;
 `;
+
+export const FormChangeDetailsButton = styled.button`
+    cursor: pointer;
+    background: #2c2c2c;
+    border-radius: 5px;
+    color: #fff;
+    padding: .8rem 1rem;
+`;

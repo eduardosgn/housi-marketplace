@@ -43,6 +43,6 @@ function OAuth() {
             </button>
         </div>
     );
-}
+};
 
 export default OAuth;

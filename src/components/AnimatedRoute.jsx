@@ -6,6 +6,7 @@ import Profile from '../pages/Profile';
 import SignIn from '../pages/SignIn';
 import SignUp from '../pages/SignUp';
 import Category from '../pages/Category';
+import CreateListing from '../pages/CreateListing';
 
 import { AnimatePresence } from 'framer-motion';
 import { useLocation, Routes, Route } from "react-router-dom";
@@ -25,6 +26,7 @@ const AnimatedRoute = () => {
                 </Route>
                 <Route path='/login' element={ <SignIn /> } />
                 <Route path='/registrar' element={ <SignUp /> } />
+                <Route path='/nova-oferta' element={ <CreateListing /> } />
             </Routes>
         </AnimatePresence>
     );

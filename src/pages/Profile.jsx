@@ -1,16 +1,13 @@
 import { motion } from "framer-motion";
-
 import { useState } from "react";
-
 import { getAuth, updateProfile } from "firebase/auth";
 import { updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase.config';
-
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from 'react-toastify';
-
-import { FormInput, FormChangeDetailsButton } from "../components/styled-components/Forms/FormContainer";
+import { FormInput } from "../components/styled-components/Forms/FormContainer";
+import arrowRight from '../assets/svg/keyboardArrowRightIcon.svg';
+import homeIcon from '../assets/svg/homeIcon.svg';
 
 const Profile = () => {
     const auth = getAuth();
@@ -116,6 +113,12 @@ const Profile = () => {
                             />
                         </form>
                     </div>
+
+                    <Link to='/nova-oferta' className='createListing'>
+                        <img src={ homeIcon } alt="Home" />
+                        <p>Venda ou alugue o seu imóvel.</p>
+                        <img src={ arrowRight } alt="Seta direita" />
+                    </Link>
                 </main>
             </div>
         </motion.div>

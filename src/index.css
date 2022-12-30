@@ -382,7 +382,7 @@ button {
   min-height: 115px;
   height: 15vw;
   width: 100%;
-  border-radius: 1.5rem;
+  border-radius: 8px;
   object-fit: cover;
   margin: 0 auto;
 }
@@ -688,7 +688,7 @@ button {
 
 .createListing {
   background-color: #ffffff;
-  border-radius: 1rem;
+  border-radius: 8px;
   padding: 0.25rem 1rem;
   box-shadow: rgba(0, 0, 0, 0.2);
   margin-top: 2rem;
@@ -762,8 +762,7 @@ button {
 
 .formInputName {
   padding: 0.9rem 1rem;
-  width: 90%;
-  max-width: 326px;
+  width: 100%;
 }
 
 .formInputAddress {

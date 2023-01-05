@@ -1,9 +1,15 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { db } from "../firebase.config";
+import { v4 as uuidv4 } from 'uuid';
 import { Form, useNavigate } from "react-router-dom";
 import { FormInput } from "../components/styled-components/Forms/FormContainer";
 import Spinner from '../components/Spinner';
+import { toast } from "react-toastify";
+
+const GOOGLE_GEOCODE_API_KEY = import.meta.env.VITE_GOOGLE_GEOCODE_API_KEY;
 
 function CreateListing() {
     const [loading, setLoading] = useState(false);
@@ -62,9 +68,86 @@ function CreateListing() {
         };
     }, [isMounted]);
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+
+        setLoading(true);
+        
+        if (discountedPrice >= regularPrice) {
+            setLoading(false);
+            toast.error('O preço de desconto precisa ser menor que o perço regular.');
+            return;
+        };
+
+        if (images.length > 6) {
+            setLoading(false);
+            toast.error('Você chegou ao máximo de imagens permitidas para upload (máx. 6 imagens)');
+            return;
+        };
+
+        let geolocation = {};
+
+        let location;
+
+        if (geolocationEnabled) {
+            const response = await fetch(`https://maps.googleapis.com/api/geocode/json?address=${address}&key=${GOOGLE_GEOCODE_API_KEY}`);
+
+            const data = await response.json();
+
+            geolocation.lat = data.results[0]?.geometry.location.lat ?? 0
+            geolocation.lng = data.results[0]?.geometry.location.lng ?? 0
+
+            location = data.status === 'ZERO_RESULTS' ? undefined : data.results[0]?.formatted_address
+
+            if (location === undefined || location.includes('undefined')) {
+                setLoading(false);
+                toast.error('Por favor, digite um endereço válido!');
+                return;
+            };
+        } else {
+            geolocation.lat = latitude;
+            geolocation.lng = longitude;
+            location = address;
+        };
+
+        // Guardar imagens no Firebase
+        const storeImage = async (image) => {
+            return new Promise((resolve, reject) => {
+                const storage = getStorage();
+
+                const fileName = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
+
+                const storageRef = ref(storage, 'images/' + fileName);
+
+                const uploadTask = uploadBytesResumable(storageRef, image);
+
+                uploadTask.on('state_changed', (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log(`O upload está ${progress}% feito...`);
+                }, (error) => {
+                    // Cuidar de erros não concluídos no upload
+                    reject(error);
+                }, () => {
+                    // Cuidar de uploads completos
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('Arquivo disponível em', downloadURL);
+                        resolve(downloadURL);
+                    });
+                })
+            });
+        };
+
+        const imgUrls = await Promise.all(
+            [...images].map((image) => storeImage(image))
+        ).catch(() => {
+            setLoading(false);
+            toast.error('Upload das imagens não concluído, tente novamente...');
+            return;
+        });
+
+        console.log(imgUrls);
+
+        setLoading(false);
     };
 
     const onMutate = (e) => {

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase.config";
 import { v4 as uuidv4 } from 'uuid';
 import { Form, useNavigate } from "react-router-dom";
@@ -85,12 +86,13 @@ function CreateListing() {
             return;
         };
 
+        // Configuração do Google Geocoding API
         let geolocation = {};
 
         let location;
 
         if (geolocationEnabled) {
-            const response = await fetch(`https://maps.googleapis.com/api/geocode/json?address=${address}&key=${GOOGLE_GEOCODE_API_KEY}`);
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${GOOGLE_GEOCODE_API_KEY}`);
 
             const data = await response.json();
 
@@ -107,7 +109,6 @@ function CreateListing() {
         } else {
             geolocation.lat = latitude;
             geolocation.lng = longitude;
-            location = address;
         };
 
         // Guardar imagens no Firebase
@@ -145,9 +146,26 @@ function CreateListing() {
             return;
         });
 
-        console.log(imgUrls);
+        // Salvar novo anúncio no Firestore
+        const formDataCopy = {
+            ...formData,
+            imgUrls,
+            geolocation,
+            timestamp: serverTimestamp()
+        };
+
+        delete formDataCopy.images;
+        delete formDataCopy.address;
+        formDataCopy.location = address;
+        !formDataCopy.offer && delete formDataCopy.discountedPrice;
+
+        const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
 
         setLoading(false);
+
+        toast.success('Novo anúncio de imóvel concluído!');
+
+        navigate(`/categoria/${formDataCopy.type}/${docRef.id}`);
     };
 
     const onMutate = (e) => {

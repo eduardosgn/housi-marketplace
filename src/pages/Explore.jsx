@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import rentCategoryImage from '../assets/jpg/rentCategoryImage.jpg';
-import sellCategoryImage from '../assets/jpg/sellCategoryImage.jpg';
+import rentCategoryImage from '../assets/jpg/woman-s-hand-showing-keys-from-new-apartment.jpg';
+import sellCategoryImage from '../assets/jpg/flat-lay-real-estate-concept.jpg';
+import Slider from "../components/Slider";
 
 function Explore() {
     return (
@@ -17,7 +18,7 @@ function Explore() {
                 </header>
 
                 <main>
-                    {/* Slider */}
+                    <Slider />
 
                     <p className="exploreCategoryHeading">Categorias</p>
 

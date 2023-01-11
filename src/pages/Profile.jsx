@@ -1,27 +1,55 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getAuth, updateProfile } from "firebase/auth";
-import { updateDoc, doc } from 'firebase/firestore';
+import { updateDoc, doc, collection, getDocs, query, where, orderBy, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { FormInput } from "../components/styled-components/Forms/FormContainer";
 import arrowRight from '../assets/svg/keyboardArrowRightIcon.svg';
 import homeIcon from '../assets/svg/homeIcon.svg';
+import ListingItem from "../components/ListingItem";
 
 const Profile = () => {
     const auth = getAuth();
 
+    const [listings, setListings] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [changeDetails, setChangeDetails] = useState(false);
-
     const [formData, setFormData] = useState({
         name: auth.currentUser.displayName,
         email: auth.currentUser.email
     });
-
+    
     const { name, email } = formData;
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUserListings = async () => {
+            const listingsRef = collection(db, 'listings');
+            const q = query(
+                listingsRef,
+                where('userRef', '==', auth.currentUser.uid),
+                orderBy('timestamp', 'desc')
+            );
+            const querySnapshot = await getDocs(q);
+
+            const listings = [];
+
+            querySnapshot.forEach(doc => {
+                return listings.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            });
+
+            setListings(listings);
+            setLoading(false);
+        };
+
+        fetchUserListings();
+    }, [auth.currentUser.uid]);
 
     const onLogout = () => {
         auth.signOut();
@@ -57,6 +85,20 @@ const Profile = () => {
             [e.target.id]: e.target.value
         }))
     };
+
+    const onDelete = async (listingId) => {
+        if(window.confirm('Você tem certeza que deseja deletar o anúncio?')) {
+            await deleteDoc(doc(db, 'listings', listingId));
+
+            const updatedListings = listings.filter(listing => listing.id !== listingId);
+
+            setListings(updatedListings);
+
+            toast.success('O anúncio foi removido com sucesso!');
+        };
+    };
+
+    const onEdit = listingId => navigate(`/editar-anuncio/${listingId}`);
 
     return (
         <motion.div
@@ -119,6 +161,28 @@ const Profile = () => {
                         <p>Venda ou alugue o seu imóvel.</p>
                         <img src={ arrowRight } alt="Seta direita" />
                     </Link>
+
+                    {!loading && listings?.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, x: '-15px' }}
+                            animate={{ opacity: 1, x: '0px' }}
+                            transition={{ duration: 0.8, ease: 'easeInOut' }}
+                            exit={{ opacity: 0, x: '-15px' }}
+                        >
+                            <p className="listingText">Seus anúncios</p>
+                            <ul className="listingsList">
+                                {listings.map(listing => (
+                                    <ListingItem 
+                                        key={listing.id} 
+                                        listing={listing.data} 
+                                        id={listing.id}
+                                        onDelete={() => onDelete(listing.id)}
+                                        onEdit={() => onEdit(listing.id)}
+                                    />
+                                ))}
+                            </ul>
+                        </motion.div>
+                    )}
                 </main>
             </div>
         </motion.div>

@@ -44,6 +44,11 @@ const Slider = () => {
         return <Spinner />
     };
 
+    // se nao tiver nenhum anuncio, retorna somente um fragment sem dimensões
+    if (listings.length === 0) {
+        return <></>
+    };
+
     return listings && (
         <>
             <p className="exploreHeading">Anúncios recomendados</p>

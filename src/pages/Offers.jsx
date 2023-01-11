@@ -10,6 +10,7 @@ import ListingItem from "../components/ListingItem";
 function Offers() {
     const [listings, setListings] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [lastFetchedListing, setLastFetchedListing] = useState(null);
 
     const params = useParams();
 
@@ -30,6 +31,10 @@ function Offers() {
                 // Executar o query
                 const querySnap = await getDocs(q);
 
+                // pegando o último anúncio visível
+                const lastVisible = querySnap.docs[querySnap.docs.length - 1];
+                setLastFetchedListing(lastVisible);
+
                 const listings = [];
                 querySnap.forEach((doc) => {
                     console.log(doc.data());
@@ -48,6 +53,43 @@ function Offers() {
 
         fetchListings();
     }, []);
+
+    // Paginação / Carregar mais anúncios
+    const onFetchMoreListing = async () => {
+        try {
+            // Pegar referencia da coleção listings
+            const listingsRef = collection(db, 'listings');
+
+            // Criar um query
+            const q = query(
+                listingsRef, 
+                where('offer', '==', true), 
+                orderBy('timestamp', 'desc'),
+                startAfter(lastFetchedListing),
+                limit(10)
+            );
+
+            // Executar o query
+            const querySnap = await getDocs(q);
+
+            const lastVisible = querySnap.docs[querySnap.docs.length - 1];
+            setLastFetchedListing(lastVisible);
+
+            const listings = [];
+            querySnap.forEach((doc) => {
+                console.log(doc.data());
+                return listings.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            });
+
+            setListings((prevState) => [...prevState, ...listings]);
+            setLoading(false);
+        } catch (error) {
+            toast.error('Não foi possível pegar a lista..');
+        };
+    };
 
     return (
         <motion.div
@@ -78,6 +120,10 @@ function Offers() {
                                 ))}
                             </ul>
                         </main>
+
+                        {lastFetchedListing && (
+                            <p className="loadMore" onClick={onFetchMoreListing}>Carregar mais</p>
+                        )}
                     </>
                 ) : (
                     <p>Sem ofertas no momento.</p>

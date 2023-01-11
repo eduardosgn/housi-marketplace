@@ -7,6 +7,7 @@ import SignIn from '../pages/SignIn';
 import SignUp from '../pages/SignUp';
 import Category from '../pages/Category';
 import CreateListing from '../pages/CreateListing';
+import EditListing from '../pages/EditListing';
 import Listing from '../pages/Listing';
 import Contact from '../pages/Contact';
 
@@ -30,6 +31,7 @@ const AnimatedRoute = () => {
                 <Route path='/login' element={ <SignIn /> } />
                 <Route path='/registrar' element={ <SignUp /> } />
                 <Route path='/nova-oferta' element={ <CreateListing /> } />
+                <Route path='/editar-anuncio/:listingId' element={ <EditListing /> } />
                 <Route path='/contact/:landlordId' element={ <Contact /> } />
             </Routes>
         </AnimatePresence>
